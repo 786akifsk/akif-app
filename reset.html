@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirecting...</title>
+  <script>
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (token) {
+      window.location.href = `myapp://reset-password?access_token=${token}`;
+    } else {
+      document.body.innerText = "Missing token in URL.";
+    }
+  </script>
+</head>
+<body>
+  Redirecting to your app...
+</body>
+</html>
