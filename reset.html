@@ -2,14 +2,26 @@
 <html>
 <head>
   <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>
-    const token = new URLSearchParams(window.location.search).get("token");
-    if (token) {
-      window.location.href = `myapp://reset-password?access_token=${token}`;
-    } else {
-      document.body.innerText = "Missing token in URL.";
-    }
-  </script>
+    window.onload = function () {
+      const hash = window.location.hash;
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const token = hashParams.get("access_token");
+
+      if (token) {
+        const deeplink = `myapp://reset-password?access_token=${token}`;
+        console.log("Redirecting to:", deeplink);
+        window.location.href = deeplink;
+
+        // fallback if app not installed
+        setTimeout(() => {
+          document.body.innerHTML = "Please open this link from your phone or install the app.";
+        }, 3000);
+      } else {
+        document.body.innerText = "Missing token in URL.";
+      }
+    };
   </script>
 </head>
 <body>
