@@ -2,22 +2,29 @@
 <html>
 <head>
   <title>Redirecting...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
     window.onload = function () {
-      const hash = window.location.hash;
-      const hashParams = new URLSearchParams(hash.substring(1));
-      const token = hashParams.get("access_token");
+      // Get token from either fragment (#access_token=...) or query (?access_token=...)
+      let token = null;
+
+      const queryParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+      if (queryParams.has("access_token")) {
+        token = queryParams.get("access_token");
+      } else if (hashParams.has("access_token")) {
+        token = hashParams.get("access_token");
+      }
 
       if (token) {
-        const deeplink = `myapp://reset-password?access_token=${token}`;
-        console.log("Redirecting to:", deeplink);
-        window.location.href = deeplink;
+        const deepLink = `myapp://reset-password?access_token=${token}`;
+        window.location.href = deepLink;
 
-        // fallback if app not installed
+        // Optional fallback for debugging
         setTimeout(() => {
-          document.body.innerHTML = "Please open this link from your phone or install the app.";
-        }, 3000);
+          document.body.innerHTML = "If you are not redirected, tap this: <a href='" + deepLink + "'>" + deepLink + "</a>";
+        }, 2000);
       } else {
         document.body.innerText = "Missing token in URL.";
       }
