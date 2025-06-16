@@ -3,7 +3,10 @@
 <head>
   <title>Redirecting...</title>
   <script>
-    const token = new URLSearchParams(window.location.search).get("token");
+    // Extract access_token from the fragment: #access_token=XYZ
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const token = hashParams.get("access_token");
+
     if (token) {
       window.location.href = `myapp://reset-password?access_token=${token}`;
     } else {
