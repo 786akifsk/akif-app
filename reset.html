@@ -11,17 +11,21 @@
 
   <p id="status"></p>
 
+  <!-- Supabase JS SDK (should be before your script) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    // ✅ Initialize Supabase FIRST
     const supabase = supabase.createClient(
       'https://fbhztxeacbqwbchcjuyf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI'
     );
 
-    // Step 1: Get access_token from URL
+    // ✅ Read token from URL
     const hash = window.location.hash;
     const accessToken = hash.split('access_token=')[1];
 
+    // ✅ Reset password function
     async function resetPassword() {
       const newPassword = document.getElementById('newPassword').value;
 
@@ -30,7 +34,7 @@
         return;
       }
 
-      // Step 2: Update password using Supabase API
+      // ✅ Use the token to update password
       const { data, error } = await supabase.auth.updateUser(
         { password: newPassword },
         { accessToken: accessToken }
@@ -39,7 +43,7 @@
       if (error) {
         document.getElementById('status').innerText = "Error: " + error.message;
       } else {
-        document.getElementById('status').innerText = "Password updated successfully!";
+        document.getElementById('status').innerText = "✅ Password updated successfully!";
       }
     }
   </script>
