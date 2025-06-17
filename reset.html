@@ -1,21 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Redirecting...</title>
-  <script>
-    // Extract the token from the fragment (#access_token=...)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const token = hashParams.get("access_token");
-
-    if (token) {
-      // Convert it into a query param so Android receives it
-      window.location.href = `myapp://reset-password?access_token=${token}`;
-    } else {
-      document.body.innerText = "Missing token in URL.";
-    }
-  </script>
+  <meta charset="UTF-8">
+  <title>Reset Password</title>
 </head>
 <body>
-  Redirecting to your app...
+  <h2>Reset Your Password</h2>
+  <input type="password" id="newPassword" placeholder="Enter new password">
+  <button onclick="resetPassword()">Reset Password</button>
+
+  <p id="status"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = supabase.createClient(
+      'https://fbhztxeacbqwbchcjuyf.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI'
+    );
+
+    // Step 1: Get access_token from URL
+    const hash = window.location.hash;
+    const accessToken = hash.split('access_token=')[1];
+
+    async function resetPassword() {
+      const newPassword = document.getElementById('newPassword').value;
+
+      if (!accessToken || !newPassword) {
+        document.getElementById('status').innerText = "Missing token or password.";
+        return;
+      }
+
+      // Step 2: Update password using Supabase API
+      const { data, error } = await supabase.auth.updateUser(
+        { password: newPassword },
+        { accessToken: accessToken }
+      );
+
+      if (error) {
+        document.getElementById('status').innerText = "Error: " + error.message;
+      } else {
+        document.getElementById('status').innerText = "Password updated successfully!";
+      }
+    }
+  </script>
 </body>
 </html>
