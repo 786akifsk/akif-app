@@ -8,54 +8,51 @@
   <input type="password" id="newPassword" placeholder="Enter new password" />
   <button id="resetBtn">Reset Password</button>
 
-  <!-- Load Supabase SDK -->
+  <!-- 1. Load Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+  <!-- 2. Your code BELOW Supabase script -->
   <script>
-    // Wait for Supabase to be fully available
-    window.addEventListener('DOMContentLoaded', () => {
-      // ✅ Initialize Supabase
-      const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
+    // ✅ Initialize Supabase client FIRST
+    const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // ✅ On button click
-      document.getElementById("resetBtn").addEventListener("click", async () => {
-        const hash = window.location.hash;
-        const params = new URLSearchParams(hash.substring(1));
-        const accessToken = params.get("access_token");
-        const newPassword = document.getElementById("newPassword").value;
+    // ✅ Call reset password on button click
+    document.getElementById("resetBtn").addEventListener("click", async function () {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get("access_token");
+      const newPassword = document.getElementById("newPassword").value;
 
-        if (!accessToken || !newPassword) {
-          alert("Missing access token or password");
-          return;
-        }
+      if (!accessToken || !newPassword) {
+        alert("Missing access token or password");
+        return;
+      }
 
-        // ✅ Set session using the token
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: accessToken
-        });
-
-        if (sessionError) {
-          console.error("Session Error:", sessionError);
-          alert("Failed to set session: " + sessionError.message);
-          return;
-        }
-
-        // ✅ Update password
-        const { error } = await supabase.auth.updateUser({ password: newPassword });
-
-        if (error) {
-          console.error("Password update error:", error);
-          alert("Password update failed: " + error.message);
-        } else {
-          alert("Password reset successful!");
-          // Optional redirect
-          window.location.href = "login.html";
-        }
+      // ✅ Set session using access_token
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: accessToken
       });
+
+      if (sessionError) {
+        console.error("Session Error:", sessionError);
+        alert("Session set failed: " + sessionError.message);
+        return;
+      }
+
+      // ✅ Update password
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+      if (error) {
+        console.error("Update Error:", error);
+        alert("Password reset failed: " + error.message);
+      } else {
+        alert("Password reset successful!");
+        window.location.href = "login.html"; // redirect if needed
+      }
     });
   </script>
 </body>
