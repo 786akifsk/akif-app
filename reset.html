@@ -8,15 +8,29 @@
   <input type="password" id="newPassword" placeholder="Enter new password" />
   <button onclick="resetPassword()">Reset Password</button>
 
-  <!-- Always load scripts LAST -->
+  <!-- Load Supabase script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Initialize Supabase client after script is loaded
+    let supabase;
+    window.onload = function() {
+      if (typeof supabase !== 'undefined') {
+        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } else {
+        console.error("Supabase script not loaded");
+        alert("Failed to load Supabase. Please try again later.");
+      }
+    };
 
     async function resetPassword() {
+      if (!supabase) {
+        alert("Supabase client not initialized. Please try again.");
+        return;
+      }
+
       const hash = window.location.hash;
       const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get("access_token");
