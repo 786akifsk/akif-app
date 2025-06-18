@@ -4,39 +4,38 @@
   <title>Reset Password</title>
 </head>
 <body>
-  <h2>Reset your password</h2>
-  <input id="newPassword" type="password" placeholder="New Password" />
-  <button onclick="resetPassword()">Submit</button>
+  <h2>Reset Your Password</h2>
+  <input type="password" id="newPassword" placeholder="Enter new password" />
+  <button onclick="resetPassword()">Reset Password</button>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
+    const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI"; // Replace with your real anon key
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     async function resetPassword() {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get("access_token");
-      
-      if (!accessToken) {
-        alert("Access token missing!");
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get("access_token");
+      const newPassword = document.getElementById("newPassword").value;
+
+      if (!accessToken || !newPassword) {
+        alert("Missing access token or password");
         return;
       }
 
-      const newPassword = document.getElementById("newPassword").value;
+      const { data, error } = await supabase.auth.updateUser(
+        { password: newPassword },
+        { accessToken } // 👈 this is the fix!
+      );
 
-      const response = await fetch("https://fbhztxeacbqwbchcjuyf.supabase.co/auth/v1/user", {
-        method: "PATCH",
-        headers: {
-          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI",  // Replace this!
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ password: newPassword })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("Password reset successful!");
+      if (error) {
+        console.error(error);
+        alert("Reset failed: " + error.message);
       } else {
-        console.error(result);
-        alert("Error: " + (result.message || "Unknown error"));
+        alert("Password reset successful!");
       }
     }
   </script>
