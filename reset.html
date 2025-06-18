@@ -8,15 +8,13 @@
   <input type="password" id="newPassword" placeholder="Enter new password" />
   <button onclick="resetPassword()">Reset Password</button>
 
-  <!-- Supabase SDK -->
+  <!-- Always load scripts LAST -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-  <!-- Initialize AFTER the script is loaded -->
   <script>
     const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function resetPassword() {
       const hash = window.location.hash;
@@ -25,14 +23,13 @@
       const newPassword = document.getElementById("newPassword").value;
 
       if (!accessToken || !newPassword) {
-        alert("Missing token or password");
+        alert("Missing access token or password");
         return;
       }
 
-      // Set session manually using token
-      const { error: sessionError } = await client.auth.setSession({
+      const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: accessToken // use same for refresh_token during recovery
+        refresh_token: accessToken // use same token for refresh_token in recovery
       });
 
       if (sessionError) {
@@ -41,17 +38,14 @@
         return;
       }
 
-      // Now update password
-      const { data, error } = await client.auth.updateUser({
-        password: newPassword
-      });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
 
       if (error) {
         console.error("Update Error:", error);
         alert("Password reset failed: " + error.message);
       } else {
         alert("Password reset successful!");
-        window.location.href = "login.html"; // Or wherever you want to redirect
+        window.location.href = "login.html"; // or your app page
       }
     }
   </script>
