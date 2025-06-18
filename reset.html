@@ -8,43 +8,38 @@
   <h2>Reset Your Password</h2>
   <input type="password" id="newPassword" placeholder="Enter new password">
   <button onclick="resetPassword()">Reset Password</button>
+
   <p id="status"></p>
 
-  <!-- ✅ Load Supabase SDK first -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ✅ Then initialize everything inside this script -->
   <script>
-    // ✅ Initialize Supabase
-    const supabase = window.supabase.createClient(
+    const supabase = supabase.createClient(
       'https://fbhztxeacbqwbchcjuyf.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI'
     );
 
-    // ✅ Extract access token from URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
+    // Step 1: Get access_token from URL
+    const hash = window.location.hash;
+    const accessToken = hash.split('access_token=')[1];
 
-    // ✅ Reset password function
     async function resetPassword() {
       const newPassword = document.getElementById('newPassword').value;
-      const statusText = document.getElementById('status');
 
       if (!accessToken || !newPassword) {
-        statusText.innerText = "❌ Missing token or password.";
+        document.getElementById('status').innerText = "Missing token or password.";
         return;
       }
 
-      // ✅ Use access token to update password
+      // Step 2: Update password using Supabase API
       const { data, error } = await supabase.auth.updateUser(
         { password: newPassword },
         { accessToken: accessToken }
       );
 
       if (error) {
-        statusText.innerText = "❌ " + error.message;
+        document.getElementById('status').innerText = "Error: " + error.message;
       } else {
-        statusText.innerText = "✅ Password updated successfully!";
+        document.getElementById('status').innerText = "Password updated successfully!";
       }
     }
   </script>
