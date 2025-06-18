@@ -14,22 +14,16 @@
     const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-    // Declare supabase variable globally
     let supabase = null;
 
-    // Initialize Supabase client after script is loaded
     window.addEventListener('load', function() {
-      if (typeof window.supabase !== 'undefined') {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      } else {
-        console.error("Supabase script not loaded");
-        alert("Failed to load Supabase. Please try again later.");
-      }
+      // ✅ Correct way to create client after supabase-js is loaded
+      supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     });
 
     async function resetPassword() {
       if (!supabase) {
-        alert("Supabase client not initialized. Please try again.");
+        alert("Supabase client not initialized. Please wait and try again.");
         return;
       }
 
@@ -45,12 +39,12 @@
 
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: accessToken // use same token for refresh_token in recovery
+        refresh_token: accessToken
       });
 
       if (sessionError) {
         console.error("Session Error:", sessionError);
-        alert("Session set failed: " + sessionError.message);
+        alert("Session failed: " + sessionError.message);
         return;
       }
 
@@ -61,7 +55,7 @@
         alert("Password reset failed: " + error.message);
       } else {
         alert("Password reset successful!");
-        window.location.href = "login.html"; // or your app page
+        window.location.href = "login.html";
       }
     }
   </script>
