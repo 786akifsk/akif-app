@@ -8,12 +8,15 @@
   <input type="password" id="newPassword" placeholder="Enter new password" />
   <button onclick="resetPassword()">Reset Password</button>
 
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- Initialize AFTER the script is loaded -->
   <script>
     const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI"; // Replace with your real anon key
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function resetPassword() {
       const hash = window.location.hash;
@@ -22,20 +25,33 @@
       const newPassword = document.getElementById("newPassword").value;
 
       if (!accessToken || !newPassword) {
-        alert("Missing access token or password");
+        alert("Missing token or password");
         return;
       }
 
-      const { data, error } = await supabase.auth.updateUser(
-        { password: newPassword },
-        { accessToken } // 👈 this is the fix!
-      );
+      // Set session manually using token
+      const { error: sessionError } = await client.auth.setSession({
+        access_token: accessToken,
+        refresh_token: accessToken // use same for refresh_token during recovery
+      });
+
+      if (sessionError) {
+        console.error("Session Error:", sessionError);
+        alert("Session set failed: " + sessionError.message);
+        return;
+      }
+
+      // Now update password
+      const { data, error } = await client.auth.updateUser({
+        password: newPassword
+      });
 
       if (error) {
-        console.error(error);
-        alert("Reset failed: " + error.message);
+        console.error("Update Error:", error);
+        alert("Password reset failed: " + error.message);
       } else {
         alert("Password reset successful!");
+        window.location.href = "login.html"; // Or wherever you want to redirect
       }
     }
   </script>
