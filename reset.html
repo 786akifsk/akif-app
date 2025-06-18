@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
-<head><title>Reset</title></head>
+<head>
+  <title>Reset Password</title>
+</head>
 <body>
+  <h2>Reset your password</h2>
   <input id="newPassword" type="password" placeholder="New Password" />
   <button onclick="resetPassword()">Submit</button>
 
@@ -9,23 +12,31 @@
     async function resetPassword() {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get("access_token");
-      const password = document.getElementById("newPassword").value;
+      
+      if (!accessToken) {
+        alert("Access token missing!");
+        return;
+      }
+
+      const newPassword = document.getElementById("newPassword").value;
 
       const response = await fetch("https://fbhztxeacbqwbchcjuyf.supabase.co/auth/v1/user", {
         method: "PATCH",
         headers: {
-          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI",
-          Authorization: `Bearer ${accessToken}`,
+          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI",  // Replace this!
+          "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password: newPassword })
       });
 
       const result = await response.json();
+
       if (response.ok) {
-        alert("Password updated.");
+        alert("Password reset successful!");
       } else {
-        alert("Error: " + result.message);
+        console.error(result);
+        alert("Error: " + (result.message || "Unknown error"));
       }
     }
   </script>
