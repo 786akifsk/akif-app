@@ -1,45 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
   <title>Reset Password</title>
 </head>
 <body>
-  <h2>Reset Your Password</h2>
-  <input type="password" id="newPassword" placeholder="Enter new password">
-  <button onclick="resetPassword()">Reset Password</button>
+  <h2>Reset your password</h2>
+  <input type="password" id="newPassword" placeholder="New Password" />
+  <button onclick="resetPassword()">Reset</button>
 
-  <p id="status"></p>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabase = supabase.createClient(
-      'https://fbhztxeacbqwbchcjuyf.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI'
-    );
-
-    // Step 1: Get access_token from URL
-    const hash = window.location.hash;
-    const accessToken = hash.split('access_token=')[1];
-
     async function resetPassword() {
-      const newPassword = document.getElementById('newPassword').value;
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get("access_token"); // ✅ DECLARE BEFORE USING
 
-      if (!accessToken || !newPassword) {
-        document.getElementById('status').innerText = "Missing token or password.";
+      const newPassword = document.getElementById("newPassword").value;
+
+      if (!accessToken || newPassword.length < 6) {
+        alert("Invalid link or password too short.");
         return;
       }
 
-      // Step 2: Update password using Supabase API
-      const { data, error } = await supabase.auth.updateUser(
-        { password: newPassword },
-        { accessToken: accessToken }
-      );
+      const res = await fetch("https://fbhztxeacbqwbchcjuyf.supabase.co/auth/v1/user", {
+        method: "PATCH",
+        headers: {
+          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI",
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ password: newPassword })
+      });
 
-      if (error) {
-        document.getElementById('status').innerText = "Error: " + error.message;
+      if (res.ok) {
+        alert("Password updated successfully!");
+        window.location.href = "login.html"; // redirect to login
       } else {
-        document.getElementById('status').innerText = "Password updated successfully!";
+        const err = await res.json();
+        console.error("Failed to reset password:", err);
+        alert("Failed to reset password: " + err.message);
       }
     }
   </script>
