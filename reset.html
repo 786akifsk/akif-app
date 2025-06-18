@@ -6,21 +6,33 @@
 <body>
   <h2>Reset Your Password</h2>
   <input type="password" id="newPassword" placeholder="Enter new password" />
-  <button id="resetBtn">Reset Password</button>
+  <button onclick="resetPassword()">Reset Password</button>
 
-  <!-- 1. Load Supabase SDK -->
+  <!-- Load Supabase script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-  <!-- 2. Your code BELOW Supabase script -->
   <script>
-    // ✅ Initialize Supabase client FIRST
     const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Declare supabase variable globally
+    let supabase = null;
 
-    // ✅ Call reset password on button click
-    document.getElementById("resetBtn").addEventListener("click", async function () {
+    // Initialize Supabase client after script is loaded
+    window.addEventListener('load', function() {
+      if (typeof window.supabase !== 'undefined') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } else {
+        console.error("Supabase script not loaded");
+        alert("Failed to load Supabase. Please try again later.");
+      }
+    });
+
+    async function resetPassword() {
+      if (!supabase) {
+        alert("Supabase client not initialized. Please try again.");
+        return;
+      }
+
       const hash = window.location.hash;
       const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get("access_token");
@@ -31,10 +43,9 @@
         return;
       }
 
-      // ✅ Set session using access_token
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: accessToken,
-        refresh_token: accessToken
+        refresh_token: accessToken // use same token for refresh_token in recovery
       });
 
       if (sessionError) {
@@ -43,7 +54,6 @@
         return;
       }
 
-      // ✅ Update password
       const { error } = await supabase.auth.updateUser({ password: newPassword });
 
       if (error) {
@@ -51,9 +61,9 @@
         alert("Password reset failed: " + error.message);
       } else {
         alert("Password reset successful!");
-        window.location.href = "login.html"; // redirect if needed
+        window.location.href = "login.html"; // or your app page
       }
-    });
+    }
   </script>
 </body>
 </html>
