@@ -1,59 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Reset Password</title>
-</head>
-<body>
-  <h2>Reset Your Password</h2>
-  <input type="password" id="newPassword" placeholder="Enter new password" />
-  <button id="resetBtn">Reset Password</button>
+  <head>
+    <title>Redirecting to App...</title>
+    <meta charset="UTF-8" />
+    <script>
+      window.onload = function () {
+        const hash = window.location.hash;
+        const params = new URLSearchParams(hash.substring(1)); // Remove '#'
 
-  <!-- 1. Load Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+        const accessToken = params.get("access_token");
+        const type = params.get("type");
 
-  <!-- 2. Your code BELOW Supabase script -->
-  <script>
-    // ✅ Initialize Supabase client FIRST
-    const SUPABASE_URL = "https://fbhztxeacbqwbchcjuyf.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiaHp0eGVhY2Jxd2JjaGNqdXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNzY1ODAsImV4cCI6MjA2NTY1MjU4MH0.-NSLi1gEZIY4IiEWz1Qa60sxRiTd3ddNcVpBc5ImDrI";
+        if (accessToken && type === "recovery") {
+          // Custom deep link to your Android app
+          const redirectUrl = `myapp://reset-password?access_token=${accessToken}`;
+          window.location.href = redirectUrl;
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ✅ Call reset password on button click
-    document.getElementById("resetBtn").addEventListener("click", async function () {
-      const hash = window.location.hash;
-      const params = new URLSearchParams(hash.substring(1));
-      const accessToken = params.get("access_token");
-      const newPassword = document.getElementById("newPassword").value;
-
-      if (!accessToken || !newPassword) {
-        alert("Missing access token or password");
-        return;
-      }
-
-      // ✅ Set session using access_token
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: accessToken
-      });
-
-      if (sessionError) {
-        console.error("Session Error:", sessionError);
-        alert("Session set failed: " + sessionError.message);
-        return;
-      }
-
-      // ✅ Update password
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-
-      if (error) {
-        console.error("Update Error:", error);
-        alert("Password reset failed: " + error.message);
-      } else {
-        alert("Password reset successful!");
-        window.location.href = "login.html"; // redirect if needed
-      }
-    });
-  </script>
-</body>
+          // Optional fallback for desktop
+          setTimeout(() => {
+            document.body.innerHTML = "<h2>Please open this link on your Android phone.</h2>";
+          }, 3000);
+        } else {
+          document.body.innerHTML = "<h2>Invalid or expired reset link.</h2>";
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to your app...</p>
+  </body>
 </html>
