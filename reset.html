@@ -5,22 +5,18 @@
   <title>Redirecting to app...</title>
 </head>
 <body>
-  <script>
-    // Get the hash fragment (removes the #)
-    const hash = window.location.hash.substring(1);
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get("token");
+  const type = urlParams.get("type");
 
-    // Use URLSearchParams to parse the fragment
-    const params = new URLSearchParams(hash);
-    const token = params.get("access_token");
-    const type = params.get("type");
+  if (token && type === "recovery") {
+    // ✅ Proper format: move token into the access_token fragment
+    window.location.href = `myapp://reset-password#access_token=${token}&type=${type}`;
+  } else {
+    document.body.innerText = "Invalid or missing token.";
+  }
+</script>
 
-    if (token && type === "recovery") {
-      // ✅ Properly redirect with full token
-      const redirectURL = `myapp://reset-password#access_token=${encodeURIComponent(token)}&type=recovery`;
-      window.location.href = redirectURL;
-    } else {
-      document.body.innerText = "❌ Invalid or missing token.";
-    }
-  </script>
 </body>
 </html>
