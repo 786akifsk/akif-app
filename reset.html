@@ -13,7 +13,7 @@
 
     if (token && type === "recovery") {
       // Redirect to app with token in fragment
-      window.location.href = `myapp://reset#access_token=${token}&type=recovery`;
+      window.location.href = `myapp://reset-password#access_token=${token}&type=recovery`;
     } else {
       document.body.innerText = "Invalid or missing token.";
     }
