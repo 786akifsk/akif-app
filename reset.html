@@ -1,25 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Redirecting...</title>
-  <script>
-    window.onload = function () {
-      const queryString = window.location.search;
-      const urlParams = new URLSearchParams(queryString);
-      const token = urlParams.get("token");
-      const type = urlParams.get("type");
-
-      if (type === "recovery" && token) {
-        // Construct deep link to app
-        const deepLink = `myapp://reset#access_token=${token}&type=recovery`;
-        window.location.href = deepLink;
-      } else {
-        document.body.innerHTML = "Invalid or expired password reset link.";
-      }
-    };
-  </script>
 </head>
 <body>
-  Redirecting to your app...
+  <script>
+    // Extract token from URL: ?token=xxx&type=recovery
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const type = urlParams.get("type");
+
+    if (token && type === "recovery") {
+      // Redirect to app with token in fragment
+      window.location.href = `myapp://reset#access_token=${token}&type=recovery`;
+    } else {
+      document.body.innerText = "Invalid or missing token.";
+    }
+  </script>
 </body>
 </html>
