@@ -6,9 +6,11 @@
 </head>
 <body>
     <script>
-        console.log("URL Search:", window.location.search);
-        // Extract token from URL
-        const urlParams = new URLSearchParams(window.location.search);
+        console.log("Full URL:", window.location.href);
+        // Extract fragment and parse as query parameters
+        const fragment = window.location.hash.substring(1); // Remove the '#' and get the fragment
+        const urlParams = new URLSearchParams(fragment);
+
         const token = urlParams.get("access_token");
         const type = urlParams.get("type");
 
