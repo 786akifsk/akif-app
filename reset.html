@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Redirecting...</title>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
 </head>
 <body>
-  <script>
-    // Extract token from URL: ?token=xxx&type=recovery
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-    const type = urlParams.get("type");
+    <script>
+        console.log("URL Search:", window.location.search);
+        // Extract token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("access_token");
+        const type = urlParams.get("type");
 
-    if (token && type === "recovery") {
-      // ✅ Redirect with token as fragment
-      window.location.href = `myapp://reset-password#access_token=${token}&type=${type}`;
-    } else {
-      document.body.innerText = "Invalid or missing token.";
-    }
-  </script>
+        console.log("Token:", token, "Type:", type);
+        if (token && type === "recovery") {
+            window.location.href = `myapp://reset-password#access_token=${encodeURIComponent(token)}&type=${encodeURIComponent(type)}`;
+        } else {
+            document.body.innerText = "Invalid or missing token";
+        }
+    </script>
 </body>
 </html>
