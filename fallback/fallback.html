@@ -56,10 +56,9 @@
 </div>
 
 <script>
-  const fragment = window.location.hash.substring(1);
-  const urlParams = new URLSearchParams(fragment);
-  const accessToken = urlParams.get("access_token");
-  const type = urlParams.get("type");
+  const queryParams = new URLSearchParams(window.location.search);
+const accessToken = queryParams.get("token");
+const type = "recovery"; // we assume recovery since fallback only happens for that
   const msg = document.getElementById("message");
 
   if (!accessToken || type !== "recovery") {
