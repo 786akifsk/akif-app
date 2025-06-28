@@ -57,12 +57,26 @@
 
 <script>
   const queryParams = new URLSearchParams(window.location.search);
-const accessToken = queryParams.get("token");
-const type = "recovery"; // we assume recovery since fallback only happens for that
+  const accessToken = queryParams.get("token");
+  const type = "recovery";
   const msg = document.getElementById("message");
 
-  if (!accessToken || type !== "recovery") {
+  const formUsedKey = `used_token_${accessToken}`;
+  const alreadyUsed = sessionStorage.getItem(formUsedKey);
+
+  // Disable form if already used
+  if (!accessToken) {
     msg.innerText = "Invalid or missing recovery token.";
+    disableForm();
+  } else if (alreadyUsed === "true") {
+    msg.innerText = "This reset link has already been used.";
+    disableForm();
+  }
+
+  function disableForm() {
+    document.getElementById("newPassword").disabled = true;
+    document.getElementById("confirmPassword").disabled = true;
+    document.querySelector("button").disabled = true;
   }
 
   async function submitReset() {
@@ -92,7 +106,9 @@ const type = "recovery"; // we assume recovery since fallback only happens for t
 
       if (response.ok) {
         msg.style.color = "green";
-        msg.innerText = "Password reset successful! You can now return to the app.";
+        msg.innerText = "Password reset successful! This link is now deactivated.";
+        sessionStorage.setItem(formUsedKey, "true");
+        disableForm();
       } else {
         const error = await response.json();
         msg.innerText = "Error: " + (error.message || "Unknown error.");
@@ -102,6 +118,7 @@ const type = "recovery"; // we assume recovery since fallback only happens for t
     }
   }
 </script>
+
 
 </body>
 </html>
