@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <p>Redirecting you to the app...</p>
+    <script>
+        const fragment = window.location.hash.substring(1);
+        const urlParams = new URLSearchParams(fragment);
+        const token = urlParams.get("access_token");
+        const type = urlParams.get("type");
+
+        if (token && type === "recovery") {
+            const deepLink = `myapp://reset-password#access_token=${encodeURIComponent(token)}&type=${encodeURIComponent(type)}`;
+            const fallbackUrl = `https://yourdomain.com/reset-password?token=${encodeURIComponent(token)}`;
+
+            // Try to open the app using the deep link
+            const now = Date.now();
+            window.location.href = deepLink;
+
+            // Set timeout to redirect to fallback after a delay
+            setTimeout(() => {
+                const elapsed = Date.now() - now;
+                if (elapsed < 2000) {
+                    // User is likely still in browser => fallback
+                    window.location.href = fallbackUrl;
+                }
+            }, 1500);
+        } else {
+            document.body.innerText = "Invalid or missing token";
+        }
+    </script>
+</body>
+</html>
